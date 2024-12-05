@@ -2,7 +2,7 @@
 
 This tool is designed to get the frontend source code of a website working with react.
 
-# Installation
+## Installation
 
 You must have npm installed on your machine. 
 Also install the lib for npm.  
@@ -15,7 +15,7 @@ You must have python3 installed and some lib on your machine.
 $ python3 -m pip install requests beautifulsoup4
 ```
 
-# TO DO
+## TO DO
 
 - Make the code only nodejs or python3
 - Improve option of the script
@@ -23,11 +23,11 @@ $ python3 -m pip install requests beautifulsoup4
 - Make venv for python3
 
 
-# Avoid making the tool working
+## Avoid making the tool working
 
 You go in your react project and you put a .env file with GENERATE_SOURCEMAP=false.
 
-# How to use it
+## How to use it
 
 
 ```bash
