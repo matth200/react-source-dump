@@ -10,11 +10,17 @@ Also install the lib for npm.
 $ npm install
 ```
 
+You must have python3 installed and some lib on your machine.
+```bash
+$ python3 -m pip install requests beautifulsoup4
+```
+
 # TO DO
 
 - Make the code only nodejs or python3
 - Improve option of the script
 - Improve also the verbose of the script
+- Make venv for python3
 
 
 # Avoid making the tool working
