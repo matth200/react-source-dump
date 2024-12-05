@@ -52,11 +52,28 @@ def fetch_and_download_js(url, output_folder):
     
     return map_files_downloaded
 
+
+def display_banner():
+    print(""" _______    ______           _______   __    __  __       __  _______  
+/       \  /      \         /       \ /  |  /  |/  \     /  |/       \ 
+$$$$$$$  |/$$$$$$  |        $$$$$$$  |$$ |  $$ |$$  \   /$$ |$$$$$$$  |
+$$ |__$$ |$$ \__$$/  ______ $$ |  $$ |$$ |  $$ |$$$  \ /$$$ |$$ |__$$ |
+$$    $$< $$      \ /      |$$ |  $$ |$$ |  $$ |$$$$  /$$$$ |$$    $$/ 
+$$$$$$$  | $$$$$$  |$$$$$$/ $$ |  $$ |$$ |  $$ |$$ $$ $$/$$ |$$$$$$$/  
+$$ |  $$ |/  \__$$ |        $$ |__$$ |$$ \__$$ |$$ |$$$/ $$ |$$ |      
+$$ |  $$ |$$    $$/         $$    $$/ $$    $$/ $$ | $/  $$ |$$ |      
+$$/   $$/  $$$$$$/          $$$$$$$/   $$$$$$/  $$/      $$/ $$/   
+
+---------------------------------------------------------------------
+Tool to dump react source from a website         
+        """)
+
 def main():
     parser = argparse.ArgumentParser(description="Download JavaScript files and their .map files from a website.")
     parser.add_argument("url", type=str, help="The URL of the website to scrape.")
     parser.add_argument("output_folder", type=str, help="The folder to save the downloaded files.")
 
+    display_banner()
     args = parser.parse_args()
 
     map_files_downloaded = fetch_and_download_js(args.url, args.output_folder)
