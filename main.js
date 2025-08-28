@@ -42,66 +42,70 @@ const handleFile = async (minifiedFilePath) => {
     // Read the minified file and the Source Map
     const minifiedCode = fs.readFileSync(minifiedFilePath, 'utf8');
     const rawSourceMap = fs.readFileSync(sourceMapPath);
-    const rawSourceMapJson = JSON.parse(rawSourceMap);
-
-    await SourceMapConsumer.with(rawSourceMapJson, null, (sourceMapConsumer) => {
-        const sources = sourceMapConsumer.sources;
-
-        const sourceContents = sources.reduce((contents, source) => {
-            contents[source] = sourceMapConsumer.sourceContentFor(source, true);
-            return contents;
-        }, {});
-
-        if (Object.values(sourceContents).some(content => content !== null)) {
-            // If sourcesContent exists, write it to the file
-            for (const source in sourceContents) {
-                if (sourceContents[source] !== null) {
-                    const originalFilePath = path.join(path.dirname(minifiedFilePath), source + '');
-                    fs.mkdirSync(path.dirname(originalFilePath), { recursive: true });
-                    fs.writeFileSync(originalFilePath, sourceContents[source]);
-                    // Add to the list of recovered files
-                    recoveredFiles.push(originalFilePath);
-                }
-            }
-        } else {
-            // If sourcesContent doesn't exist, reconstruct the source code
-            const lines = minifiedCode.split('\n');
-            let reconstructedSource = '';
-
-            lines.forEach((line, lineIndex) => {
-                const lineNum = lineIndex + 1;
-                const columnCount = line.length;
-
-                for (let column = 0; column < columnCount; column++) {
-                    const pos = { line: lineNum, column: column };
-                    const originalPosition = sourceMapConsumer.originalPositionFor(pos);
-
-                    if (originalPosition.source === null) continue;
-
-                    if (originalPosition.name) {
-                        reconstructedSource += originalPosition.name;
-                    } else {
-                        reconstructedSource += minifiedCode.charAt(column);
+    try{
+        const rawSourceMapJson = JSON.parse(rawSourceMap);
+    
+        await SourceMapConsumer.with(rawSourceMapJson, null, (sourceMapConsumer) => {
+            const sources = sourceMapConsumer.sources;
+    
+            const sourceContents = sources.reduce((contents, source) => {
+                contents[source] = sourceMapConsumer.sourceContentFor(source, true);
+                return contents;
+            }, {});
+    
+            if (Object.values(sourceContents).some(content => content !== null)) {
+                // If sourcesContent exists, write it to the file
+                for (const source in sourceContents) {
+                    if (sourceContents[source] !== null) {
+                        const originalFilePath = path.join(path.dirname(minifiedFilePath), source + '');
+                        fs.mkdirSync(path.dirname(originalFilePath), { recursive: true });
+                        fs.writeFileSync(originalFilePath, sourceContents[source]);
+                        // Add to the list of recovered files
+                        recoveredFiles.push(originalFilePath);
                     }
                 }
-
-                reconstructedSource += '\n';
-            });
-
-            // prettify the code
-            try {
-                reconstructedSource = prettier.format(reconstructedSource, { semi: false, parser: "babel" });
-            } catch (error) {
-                console.error("An error occurred while prettifying the code:", error);
+            } else {
+                // If sourcesContent doesn't exist, reconstruct the source code
+                const lines = minifiedCode.split('\n');
+                let reconstructedSource = '';
+    
+                lines.forEach((line, lineIndex) => {
+                    const lineNum = lineIndex + 1;
+                    const columnCount = line.length;
+    
+                    for (let column = 0; column < columnCount; column++) {
+                        const pos = { line: lineNum, column: column };
+                        const originalPosition = sourceMapConsumer.originalPositionFor(pos);
+    
+                        if (originalPosition.source === null) continue;
+    
+                        if (originalPosition.name) {
+                            reconstructedSource += originalPosition.name;
+                        } else {
+                            reconstructedSource += minifiedCode.charAt(column);
+                        }
+                    }
+    
+                    reconstructedSource += '\n';
+                });
+    
+                // prettify the code
+                try {
+                    reconstructedSource = prettier.format(reconstructedSource, { semi: false, parser: "babel" });
+                } catch (error) {
+                    console.error("An error occurred while prettifying the code:", error);
+                }
+    
+                const originalFilePath = path.join(path.dirname(minifiedFilePath), path.basename(minifiedFilePath, '.js') + '-recovered.js');
+                fs.mkdirSync(path.dirname(originalFilePath), { recursive: true });
+                fs.writeFileSync(originalFilePath, reconstructedSource);
+                // Add to the list of recovered files
+                recoveredFiles.push(originalFilePath);
             }
-
-            const originalFilePath = path.join(path.dirname(minifiedFilePath), path.basename(minifiedFilePath, '.js') + '-recovered.js');
-            fs.mkdirSync(path.dirname(originalFilePath), { recursive: true });
-            fs.writeFileSync(originalFilePath, reconstructedSource);
-            // Add to the list of recovered files
-            recoveredFiles.push(originalFilePath);
-        }
-    });
+        });
+    }catch(e){
+        console.log("This file doesn't have information");
+    }
 };
 
 const handlePath = async (inputPath, currentDepth = 0) => {
